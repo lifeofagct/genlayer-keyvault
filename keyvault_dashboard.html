@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenLayer Key Vault Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+        }
+
+        .setup-card {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .setup-card.hidden {
+            display: none;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        textarea {
+            min-height: 80px;
+            font-family: inherit;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover {
+            background: #5a6268;
+        }
+
+        button.danger {
+            background: #dc3545;
+        }
+
+        button.danger:hover {
+            background: #c82333;
+        }
+
+        .key-list {
+            margin-top: 20px;
+        }
+
+        .key-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .key-item h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .key-item p {
+            color: #666;
+            margin: 5px 0;
+            font-size: 14px;
+        }
+
+        .key-item .stats {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #ddd;
+        }
+
+        .stat {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .stat strong {
+            color: #667eea;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .badge.active {
+            background: #28a745;
+            color: white;
+        }
+
+        .badge.inactive {
+            background: #dc3545;
+            color: white;
+        }
+
+        .actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .actions button {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .alert.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: #f8f9fa;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            color: #555;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .config-display {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #333;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🔐 GenLayer Key Vault Dashboard</h1>
+            <p>Secure API key management for GenLayer smart contracts</p>
+        </div>
+
+        <!-- Setup Card (shown only if not initialized) -->
+        <div class="setup-card" id="setupCard">
+            <h2>⚡ Initial Setup</h2>
+            <p style="margin: 15px 0; color: #666;">First time using the vault? Initialize admin access to get started.</p>
+            
+            <div class="form-group">
+                <label>Vault URL:</label>
+                <input type="text" id="setupVaultUrl" value="http://localhost:8000" placeholder="http://localhost:8000">
+            </div>
+
+            <button onclick="initializeVault()">Initialize Admin Access</button>
+            
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-radius: 5px; color: #856404;">
+                <strong>⚠️ Important:</strong> Save the admin token you receive! You'll need it for all operations.
+            </div>
+        </div>
+
+        <!-- Config Card (shown after setup) -->
+        <div class="card hidden" id="configCard">
+            <h2>⚙️ Configuration</h2>
+            <div class="form-group">
+                <label>Vault URL:</label>
+                <input type="text" id="vaultUrl" value="http://localhost:8000">
+            </div>
+            <div class="form-group">
+                <label>Admin Token:</label>
+                <input type="password" id="apiToken" placeholder="Paste your admin token here">
+            </div>
+            <button onclick="saveConfig()">Save Configuration</button>
+        </div>
+
+        <!-- Main Dashboard (shown after config) -->
+        <div class="hidden" id="dashboard">
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('keys', this)">🔑 Keys</button>
+                <button class="tab" onclick="showTab('create', this)">➕ Create Key</button>
+                <button class="tab" onclick="showTab('stats', this)">📊 Statistics</button>
+            </div>
+
+            <!-- Alert Area -->
+            <div id="alertArea"></div>
+
+            <!-- Keys Tab -->
+            <div class="tab-content active" id="keysTab">
+                <div class="card">
+                    <h2>Your API Keys</h2>
+                    <button onclick="loadKeys()">🔄 Refresh</button>
+                    <div class="key-list" id="keyList">
+                        <p style="color: #666; margin-top: 20px;">Click Refresh to load your keys...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Tab -->
+            <div class="tab-content" id="createTab">
+                <div class="card">
+                    <h2>Create New API Key</h2>
+                    <form onsubmit="createKey(event)">
+                        <div class="form-group">
+                            <label>Service Name: *</label>
+                            <input type="text" id="serviceName" placeholder="e.g., openweathermap, coingecko" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>API Key: *</label>
+                            <input type="password" id="apiKey" placeholder="Your actual API key" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description:</label>
+                            <textarea id="description" placeholder="Optional description"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Allowed Contracts (comma-separated):</label>
+                            <input type="text" id="allowedContracts" placeholder="0x1234..., 0x5678... (leave empty for all)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Rate Limit (requests/hour):</label>
+                            <input type="number" id="rateLimit" value="100" min="1">
+                        </div>
+
+                        <button type="submit">Create Key</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Stats Tab -->
+            <div class="tab-content" id="statsTab">
+                <div class="card">
+                    <h2>Vault Statistics</h2>
+                    <button onclick="loadStats()">🔄 Refresh</button>
+                    <div id="statsDisplay" style="margin-top: 20px;">
+                        <p style="color: #666;">Click Refresh to load statistics...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        let vaultUrl = 'http://localhost:8000';
+        let apiToken = '';
+
+        // Initialize vault
+        async function initializeVault() {
+            const url = document.getElementById('setupVaultUrl').value;
+            
+            try {
+                const response = await fetch(`${url}/admin/init`, {
+                    method: 'POST'
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to initialize vault');
+                }
+
+                const data = await response.json();
+                
+                // Show token to user
+                showAlert('success', `
+                    ✅ Vault initialized successfully!<br>
+                    <strong>Your Admin Token:</strong><br>
+                    <div class="config-display">${data.admin_token}</div>
+                    <strong>⚠️ Save this token securely! You'll need it for all operations.</strong>
+                `);
+
+                // Update UI
+                document.getElementById('setupCard').classList.add('hidden');
+                document.getElementById('configCard').classList.remove('hidden');
+                document.getElementById('vaultUrl').value = url;
+                document.getElementById('apiToken').value = data.admin_token;
+
+                vaultUrl = url;
+                apiToken = data.admin_token;
+
+            } catch (error) {
+                showAlert('error', `Error: ${error.message}`);
+            }
+        }
+
+        // Save configuration
+        function saveConfig() {
+            vaultUrl = document.getElementById('vaultUrl').value;
+            apiToken = document.getElementById('apiToken').value;
+
+            if (!apiToken) {
+                showAlert('error', 'Please enter your admin token');
+                return;
+            }
+
+            document.getElementById('configCard').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+
+            showAlert('success', 'Configuration saved! You can now manage your keys.');
+            loadKeys();
+        }
+
+        // Create key
+        async function createKey(event) {
+            event.preventDefault();
+
+            const data = {
+                service_name: document.getElementById('serviceName').value,
+                api_key: document.getElementById('apiKey').value,
+                description: document.getElementById('description').value,
+                allowed_contracts: document.getElementById('allowedContracts').value
+                    .split(',')
+                    .map(s => s.trim())
+                    .filter(s => s),
+                rate_limit: parseInt(document.getElementById('rateLimit').value)
+            };
+
+            try {
+                const response = await fetch(`${vaultUrl}/admin/keys`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Api-Token': apiToken
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to create key');
+                }
+
+                const result = await response.json();
+                
+                showAlert('success', `✅ Key created successfully! ID: ${result.key_id}`);
+                
+                // Clear form
+                document.getElementById('serviceName').value = '';
+                document.getElementById('apiKey').value = '';
+                document.getElementById('description').value = '';
+                document.getElementById('allowedContracts').value = '';
+                document.getElementById('rateLimit').value = '100';
+
+                // Switch to keys tab
+                showTab('keys');
+                loadKeys();
+
+            } catch (error) {
+                showAlert('error', `Error: ${error.message}`);
+            }
+        }
+
+        // Load keys
+        async function loadKeys() {
+            try {
+                const response = await fetch(`${vaultUrl}/admin/keys`, {
+                    headers: {
+                        'X-Api-Token': apiToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load keys');
+                }
+
+                const data = await response.json();
+                displayKeys(data.keys);
+
+            } catch (error) {
+                showAlert('error', `Error: ${error.message}`);
+            }
+        }
+
+        // Display keys
+        function displayKeys(keys) {
+            const container = document.getElementById('keyList');
+            
+            if (keys.length === 0) {
+                container.innerHTML = '<p style="color: #666; margin-top: 20px;">No keys yet. Create one to get started!</p>';
+                return;
+            }
+
+            container.innerHTML = keys.map(key => `
+                <div class="key-item">
+                    <h3>🔑 ${key.service_name}</h3>
+                    <p><strong>ID:</strong> ${key.key_id}</p>
+                    <p><strong>Description:</strong> ${key.description || 'No description'}</p>
+                    <p><strong>Status:</strong> <span class="badge ${key.active ? 'active' : 'inactive'}">${key.active ? 'Active' : 'Inactive'}</span></p>
+                    <p><strong>Allowed Contracts:</strong> ${key.allowed_contracts.length > 0 ? key.allowed_contracts.join(', ') : 'All contracts'}</p>
+                    
+                    <div class="stats">
+                        <div class="stat">
+                            <strong>${key.total_calls}</strong> total calls
+                        </div>
+                        <div class="stat">
+                            <strong>${key.rate_limit}</strong> requests/hour limit
+                        </div>
+                        <div class="stat">
+                            Last used: ${key.last_used ? new Date(key.last_used * 1000).toLocaleString() : 'Never'}
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="secondary" onclick="viewStats('${key.key_id}')">📊 Stats</button>
+                        <button class="secondary" onclick="toggleKey('${key.key_id}', ${!key.active})">${key.active ? '❌ Disable' : '✅ Enable'}</button>
+                        <button class="danger" onclick="deleteKey('${key.key_id}')">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle key active status
+        async function toggleKey(keyId, active) {
+            try {
+                const response = await fetch(`${vaultUrl}/admin/keys/${keyId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Api-Token': apiToken
+                    },
+                    body: JSON.stringify({ active })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to update key');
+                }
+
+                showAlert('success', `Key ${active ? 'enabled' : 'disabled'} successfully`);
+                loadKeys();
+
+            } catch (error) {
+                showAlert('error', `Error: ${error.message}`);
+            }
+        }
+
+        // Delete key
+        async function deleteKey(keyId) {
+            if (!confirm('Are you sure you want to delete this key? This cannot be undone.')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${vaultUrl}/admin/keys/${keyId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Api-Token': apiToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to delete key');
+                }
+
+                showAlert('success', 'Key deleted successfully');
+                loadKeys();
+
+            } catch (error) {
+                showAlert('error', `Error: ${error.message}`);
+            }
+        }
+
+        // View stats for specific key
+        async function viewStats(keyId) {
+            try {
+                const response = await fetch(`${vaultUrl}/admin/usage/${keyId}`, {
+                    headers: {
+                        'X-Api-Token': apiToken
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to load stats');
+                }
+
+                const data = await response.json();
+                
+                showAlert('info', `
+                    <strong>📊 Usage Statistics for ${keyId}</strong><br><br>
+                    Total Calls: ${data.total_calls}<br>
+                    Calls (Last Hour): ${data.calls_last_hour}<br>
+                    Rate Limit Hits: ${data.rate_limit_hits}<br>
+                    Last Used: ${data.last_used ? new Date(data.last_used * 1000).toLocaleString() : 'Never'}<br>
+                    Status: ${data.active ? 'Active' : 'Inactive'}
+                `);
+
+            } catch (error) {
+                showAlert('error', `Error: ${error.message}`);
+            }
+        }
+
+        // Load vault statistics
+        async function loadStats() {
+            try {
+                const response = await fetch(`${vaultUrl}/health`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load stats');
+                }
+
+                const data = await response.json();
+                
+                document.getElementById('statsDisplay').innerHTML = `
+                    <div class="key-item">
+                        <h3>🏥 Vault Health</h3>
+                        <div class="stats">
+                            <div class="stat">
+                                Status: <strong style="color: #28a745;">${data.status}</strong>
+                            </div>
+                            <div class="stat">
+                                Version: <strong>${data.version}</strong>
+                            </div>
+                            <div class="stat">
+                                Total Keys: <strong>${data.total_keys}</strong>
+                            </div>
+                            <div class="stat">
+                                Active Keys: <strong>${data.active_keys}</strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                showAlert('error', `Error: ${error.message}`);
+            }
+        }
+
+        // Show tab
+        function showTab(tabName, element) {
+            // Update tab buttons
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            if (element) {
+                element.classList.add('active');
+            }
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+
+        // Show alert
+        function showAlert(type, message) {
+            const alertArea = document.getElementById('alertArea');
+            alertArea.innerHTML = `<div class="alert ${type}">${message}</div>`;
+            
+            // Auto-dismiss after 5 seconds for success/error
+            if (type !== 'info') {
+                setTimeout(() => {
+                    alertArea.innerHTML = '';
+                }, 5000);
+            }
+        }
+    </script>
+</body>
+</html>

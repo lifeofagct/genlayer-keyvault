@@ -1,0 +1,26 @@
+{
+  "name": "genlayer-keyvault",
+  "version": "1.0.0",
+  "description": "Secure API key management for GenLayer smart contracts",
+  "main": "keyvault_sdk.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"No tests yet\" && exit 0"
+  },
+  "keywords": [
+    "genlayer",
+    "api-keys",
+    "smart-contracts",
+    "security",
+    "vault",
+    "encryption"
+  ],
+  "author": "HASBUNALLAH AYO ABDULRAHMAN",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lifeofagct/genlayer-keyvault"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
